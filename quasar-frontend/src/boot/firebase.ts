@@ -1,3 +1,4 @@
+import { useUserStore } from './../stores/user-store';
 import { boot } from 'quasar/wrappers'
 import firebase from 'firebase/compat/app';
 import { getAuth, GoogleAuthProvider, onAuthStateChanged } from 'firebase/auth';
@@ -5,6 +6,8 @@ import * as firebaseui from 'firebaseui'
 import 'firebaseui/dist/firebaseui.css'
 import 'firebase/compat/auth';
 import { getFirestore } from 'firebase/firestore';
+import { User } from 'src/models/user';
+
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
   authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -14,7 +17,6 @@ const firebaseConfig = {
   messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.FIREBASE_APP_ID,
 };
-
 const fbApp = firebase.initializeApp(firebaseConfig)
 const fbAuth = getAuth();
 const fbUiConfig = {
@@ -32,22 +34,27 @@ const fbUiConfig = {
 };
 const fbUi = new firebaseui.auth.AuthUI(fbAuth);
 const fbDb = getFirestore();
-const baseUserState = {
-  displayName: null,
-  email: null,
-  metadata: {}
-}
-export default boot(({app, store}) => {
+
+export default boot(({app}) => {
+  const userStore = useUserStore()
   onAuthStateChanged(fbAuth, (user) => {
     if (user) {
-      //const userData: StoreUserInterface = {email: user.email, displayName: user.displayName, metadata: user.metadata, uid: user.uid}
-      //store.commit('BaseStoreModule/setUser', userData)
-      //store.commit('BaseStoreModule/setUserLoggedIn', true)
-      //void store.dispatch('BaseStoreModule/login', userData)
+      const userData: User = {
+        displayName: user.displayName,
+        email: user.email,
+        loggedIn: true,
+        phoneNumber: user.phoneNumber,
+        photoURL: user.photoURL,
+        providerId: user.providerId,
+        uid: user.uid,
+      }
+      userStore.user = userData
     } else {
-      //store.commit('BaseStoreModule/resetState', false)
+      userStore.$reset()
       //store.commit('BaseStoreModule/setUser', baseUserState)
     }
+  }, function(error) {
+    console.log(error);
   });
 app.config.globalProperties.$firebase = fbApp;
 })
