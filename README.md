@@ -10,5 +10,6 @@ Web application for selling one-time or season tickets. The target group include
 ## Usage
 - Setup Google Firebase https://console.firebase.google.com/
 - Rename env.tmpl to .env and fill the variables with your firebase configuration
-- ```cd quasar-frontend```
+- ```cd frontend```
+- ```yarn```
 - ```yarn quasar dev```
